@@ -29,7 +29,8 @@ namespace Friday
                 reporterId = ev.Player.UserId,
                 reportedName = ev.Target.Nickname,
                 reportedId = ev.Target.UserId,
-                reason = ev.Reason
+                reason = ev.Reason,
+                serverName = Server.Name
             };
             client.UploadData("https://friday.jayxtq.xyz/report", "POST", Encoding.UTF8.GetBytes(jsonData.ToString()));
         }
