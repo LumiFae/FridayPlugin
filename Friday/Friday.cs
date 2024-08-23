@@ -1,8 +1,10 @@
 ﻿using System.Net;
-using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Handlers = Exiled.Events.Handlers;
+using Newtonsoft.Json;
 
 namespace Friday
 {
@@ -20,9 +22,6 @@ namespace Friday
 
         void LocalReporting(LocalReportingEventArgs ev)
         {
-            WebClient client = new WebClient();
-            client.Headers.Add("Content-Type", "application/json");
-            client.Headers.Add("Authorization", Config.Token);
             var jsonData = new
             {
                 reporterName = ev.Player.Nickname,
@@ -32,7 +31,23 @@ namespace Friday
                 reason = ev.Reason,
                 serverName = Server.Name
             };
-            client.UploadData("https://friday.jayxtq.xyz/report", "POST", Encoding.UTF8.GetBytes(jsonData.ToString()));
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Config.Token);
+                var content = new StringContent(JsonConvert.SerializeObject(jsonData));
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                var response = client.PostAsync("https://friday.jayxtq.xyz/report",
+                    content).GetAwaiter().GetResult();
+                var responseString = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    Log.Error("Error from server: " + responseString);
+                }
+                else
+                {
+                    Log.Info(responseString);
+                }
+            }
         }
     }
 }
