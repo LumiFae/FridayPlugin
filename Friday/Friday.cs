@@ -29,7 +29,8 @@ namespace Friday
                 reportedName = ev.Target.Nickname,
                 reportedId = ev.Target.UserId,
                 reason = ev.Reason,
-                serverName = Server.Name
+                serverName = Server.Name,
+                serverType = 0
             };
             using (HttpClient client = new HttpClient())
             {
