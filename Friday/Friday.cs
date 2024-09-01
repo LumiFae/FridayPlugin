@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Friday
 {
-    public class Friday: Plugin<Config, Translation>
+    public class Friday: Plugin<Config>
     {
         public override void OnEnabled()
         {
@@ -46,8 +46,6 @@ namespace Friday
                 }
                 else
                 {
-                    var responseJson = JsonConvert.DeserializeObject<Response>(responseString);
-                    ev.Player.Broadcast(5, (responseJson.inDiscord ? Translation.ReportInServer : Translation.ReportNotInServer).Replace("{0}", responseJson.name));
                     Log.Info(responseString);
                 }
             }
