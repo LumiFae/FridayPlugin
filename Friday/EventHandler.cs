@@ -2,26 +2,19 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Exiled.API.Features;
-using Exiled.Events.EventArgs.Player;
-using Handlers = Exiled.Events.Handlers;
 using Newtonsoft.Json;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
+using PluginAPI.Events;
 
 namespace Friday
 {
-    public class Friday: Plugin<Config>
+    public class EventHandler
     {
-        public override void OnEnabled()
+        [PluginEvent(ServerEventType.PlayerReport)]
+        public void PlayerReport(PlayerReportEvent ev)
         {
-            Handlers.Server.LocalReporting += LocalReporting;
-        }
-    
-        public override void OnDisabled()
-        {
-            Handlers.Server.LocalReporting -= LocalReporting;
-        }
-
-        void LocalReporting(LocalReportingEventArgs ev)
-        {
+            Log.Info("Report incoming...");
             var jsonData = new
             {
                 reporterName = ev.Player.Nickname,
@@ -34,7 +27,7 @@ namespace Friday
             };
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Config.Token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Plugin.Instance.Config.Token);
                 var content = new StringContent(JsonConvert.SerializeObject(jsonData));
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 var response = client.PostAsync("https://friday.jayxtq.xyz/report",
