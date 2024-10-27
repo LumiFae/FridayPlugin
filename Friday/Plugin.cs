@@ -42,12 +42,12 @@ namespace Friday
                 serverName = Server.Name,
                 serverType = 0
             };
-            using (HttpClient client = new HttpClient())
+            using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Plugin.Instance.Config.Token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Config.Token);
                 var content = new StringContent(JsonConvert.SerializeObject(jsonData));
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = client.PostAsync("https://friday.jayxtq.xyz/report",
+                var response = client.PostAsync("https://friday.jxtq.moe/report",
                     content).GetAwaiter().GetResult();
                 var responseString = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (response.StatusCode != HttpStatusCode.OK)
