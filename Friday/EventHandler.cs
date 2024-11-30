@@ -11,7 +11,7 @@ namespace Friday
         [PluginEvent(ServerEventType.PlayerReport)]
         public void PlayerReport(PlayerReportEvent ev)
         {
-            Timing.RunCoroutine(Plugin.Instance.ReportPlayer(ev));
+            Task.Run(async () => await Plugin.Instance.ReportPlayer(ev));
         }
     }
 }

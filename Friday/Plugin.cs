@@ -29,7 +29,7 @@ namespace Friday
             base.OnDisabled();
         }
         
-        public IEnumerator<float> ReportPlayer(PlayerReportEvent ev)
+        public async Task ReportPlayer(PlayerReportEvent ev)
         {
             Log.Info("Report incoming...");
             var jsonData = new
@@ -42,25 +42,27 @@ namespace Friday
                 serverName = Server.Name,
                 serverType = 0
             };
-            using (var client = new HttpClient())
+            
+            using HttpClient client = new();
+            
+            client.DefaultRequestHeaders.Authorization = new ("Bearer", Config.Token);
+            
+            StringContent content = new (JsonConvert.SerializeObject(jsonData));
+            
+            content.Headers.ContentType = new ("application/json");
+            
+            HttpResponseMessage response = await client.PostAsync("https://friday.jxtq.moe/report", content);
+            
+            string responseString = await response.Content.ReadAsStringAsync();
+            
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Config.Token);
-                var content = new StringContent(JsonConvert.SerializeObject(jsonData));
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = client.PostAsync("https://friday.jxtq.moe/report",
-                    content).GetAwaiter().GetResult();
-                var responseString = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    Log.Error("Error from server: " + responseString);
-                }
-                else
-                {
-                    Log.Info(responseString);
-                }
+                Log.Error("Error from server: " + responseString);
             }
-
-            yield return 0;
+            else
+            {
+                Log.Info(responseString);
+            }
         }
     }
 }
