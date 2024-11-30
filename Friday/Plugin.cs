@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using Newtonsoft.Json;
 using PluginAPI.Events;
@@ -10,6 +11,13 @@ namespace Friday
 {
     public class Plugin: Plugin<Config>
     {
+        public override string Name => "Friday";
+        public override string Author => "JayXTQ";
+        public override string Prefix => "Friday";
+        public override Version Version => new (1, 2, 4);
+        public override Version RequiredExiledVersion => new (8, 11, 0);
+        public override PluginPriority Priority => PluginPriority.Default;
+        
         public static Plugin Instance;
         
         EventHandler handler;
