@@ -12,34 +12,39 @@ namespace Friday
     public class Plugin: Plugin<Config>
     {
         public override string Name => "Friday";
-        public override string Author => "JayXTQ";
-        public override string Prefix => "Friday";
-        public override Version Version => new (1, 2, 4);
+        public override string Author => "LumiFae";
+        public override Version Version => new (1, 2, 5);
         public override Version RequiredExiledVersion => new (8, 11, 0);
-        public override PluginPriority Priority => PluginPriority.Default;
         
         public static Plugin Instance;
         
-        EventHandler handler;
+        private EventHandler _handler;
+        
+        private HttpClient _client;
         
         public override void OnEnabled()
         {
             Instance = this;
-            handler = new EventHandler();
-            EventManager.RegisterEvents(this, handler);
+            _handler = new();
+            
+            _client = new();
+            _client.DefaultRequestHeaders.Authorization = new ("Bearer", Config.Token);
+            
+            EventManager.RegisterEvents(this, _handler);
             base.OnEnabled();
         }
     
         public override void OnDisabled()
         {
-            EventManager.UnregisterEvents(this, handler);
-            handler = null;
+            EventManager.UnregisterEvents(this, _handler);
+            _handler = null;
+            _client = null;
             base.OnDisabled();
         }
         
         public async Task ReportPlayer(PlayerReportEvent ev)
         {
-            Log.Info("Report incoming...");
+            Log.Debug("Report incoming...");
             var jsonData = new
             {
                 reporterName = ev.Player.Nickname,
@@ -51,15 +56,11 @@ namespace Friday
                 serverType = 0
             };
             
-            using HttpClient client = new();
-            
-            client.DefaultRequestHeaders.Authorization = new ("Bearer", Config.Token);
-            
             StringContent content = new (JsonConvert.SerializeObject(jsonData));
             
             content.Headers.ContentType = new ("application/json");
             
-            HttpResponseMessage response = await client.PostAsync("https://friday.jxtq.moe/report", content);
+            HttpResponseMessage response = await _client.PostAsync($"https://{Config.fqdn}/report", content);
             
             string responseString = await response.Content.ReadAsStringAsync();
             
@@ -69,7 +70,7 @@ namespace Friday
             }
             else
             {
-                Log.Info(responseString);
+                Log.Debug(responseString);
             }
         }
     }
