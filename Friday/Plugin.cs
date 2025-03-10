@@ -29,6 +29,7 @@ namespace Friday
             
             _client = new();
             _client.DefaultRequestHeaders.Authorization = new ("Bearer", Config.Token);
+            _client.BaseAddress = new ($"https://{Config.fqdn}/");
             
             EventManager.RegisterEvents(this, _handler);
             base.OnEnabled();
@@ -38,6 +39,7 @@ namespace Friday
         {
             EventManager.UnregisterEvents(this, _handler);
             _handler = null;
+            _client.Dispose();
             _client = null;
             base.OnDisabled();
         }
@@ -60,7 +62,7 @@ namespace Friday
             
             content.Headers.ContentType = new ("application/json");
             
-            HttpResponseMessage response = await _client.PostAsync($"https://{Config.fqdn}/report", content);
+            HttpResponseMessage response = await _client.PostAsync("report", content);
             
             string responseString = await response.Content.ReadAsStringAsync();
             
